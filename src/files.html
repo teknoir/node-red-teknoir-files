@@ -1,0 +1,151 @@
+<script type="text/x-red" data-template-name="files">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Files">
+    </div>
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tag"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="files">
+    <p>Simple file uploader node</p>
+    <p>Press the button to upload one or many files directly to the flow. Each file will be sent in a separate message.</p>
+    <p>File will be sent as part of the <code>msg.payload</code> object.</p>
+    <p>If a topic is added it will be set as <code>msg.topic</code>.</p>
+</script>
+
+<script type="text/javascript">
+    (function () {
+
+        let id;
+        let topic;
+        let inputElement = document.createElement('input');
+        inputElement.setAttribute('id', 'node-red-contrib-files');
+        inputElement.setAttribute('type', 'file');
+        inputElement.multiple = true;
+        inputElement.addEventListener('change', injectFile);
+        document.body.appendChild(inputElement);
+
+        function simulate(element, eventName) {
+            let options = extend(defaultOptions, arguments[2] || {});
+            let oEvent, eventType = null;
+
+            for (let name in eventMatchers) {
+                if (eventMatchers[name].test(eventName)) {
+                    eventType = name;
+                    break;
+                }
+            }
+
+            if (!eventType)
+                throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
+
+            if (document.createEvent) {
+                oEvent = document.createEvent(eventType);
+                if (eventType == 'HTMLEvents') {
+                    oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+                } else {
+                    oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
+                        options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
+                        options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
+                }
+                element.dispatchEvent(oEvent);
+            } else {
+                options.clientX = options.pointerX;
+                options.clientY = options.pointerY;
+                let evt = document.createEventObject();
+                oEvent = extend(evt, options);
+                element.fireEvent('on' + eventName, oEvent);
+            }
+            return element;
+        }
+
+        function extend(destination, source) {
+            for (let property in source)
+                destination[property] = source[property];
+            return destination;
+        }
+
+        let eventMatchers = {
+            'HTMLEvents': /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+            'MouseEvents': /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
+        };
+
+        let defaultOptions = {
+            pointerX: 0,
+            pointerY: 0,
+            button: 0,
+            ctrlKey: false,
+            altKey: false,
+            shiftKey: false,
+            metaKey: false,
+            bubbles: true,
+            cancelable: true
+        };
+
+        function triggerClick(event) {
+            simulate(inputElement, 'click')
+        }
+
+        //
+        // function setNodeStatus(uploading, id) {
+        //   $.getJSON('node-red-files/status', {status: uploading, id: id})
+        //     .done(function () {})
+        //     .fail(function (err) {
+        //       console.log(err);
+        //     })
+        //     .always(function () {});
+        // }
+
+        function injectFile() {
+            let blob;
+            let currentInput = this;
+            let topicParam = ((!topic || topic === '') ? '' : '?topic=' + topic);
+            for (var x = 0; x < currentInput.files.length; x++) {
+                let file = currentInput.files[x];
+                let reader = new FileReader();
+                reader.addEventListener('load', function (onLoadEvent) {
+                    blob = new Blob([onLoadEvent.target.result], {
+                        type: file.type
+                    });
+
+                    currentInput.value = '';
+
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'node-red-files/' + id + topicParam, true);
+                    xhr.send(blob);
+                });
+
+                reader.readAsArrayBuffer(file);
+            }
+
+        }
+
+        RED.nodes.registerType('files', {
+            category: 'input',
+            defaults: {
+                name: {value: ''},
+                topic: {value: ''}
+            },
+            color: 'rgb(254, 245, 136)',
+            inputs: 0,
+            outputs: 1,
+            icon: 'tn_dark.svg',
+            label: function () {
+                return this.name || 'file upload';
+            },
+            labelStyle: function () {
+                return this.name ? 'node_label_italic' : '';
+            },
+            button: {
+                onclick: function (evt) {
+                    id = this.id;
+                    topic = this.topic;
+                    triggerClick(evt);
+                }
+            }
+        });
+    })();
+</script>

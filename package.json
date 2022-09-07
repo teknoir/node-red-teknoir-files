@@ -1,0 +1,29 @@
+{
+    "name": "node-red-teknoir-files",
+    "version": "0.1.0",
+    "description": "File batch uploader Node for Node Red.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/teknoir/node-red-teknoir-files.git"
+    },
+    "keywords": [
+        "files",
+        "node-red",
+        "node"
+    ],
+    "node-red": {
+        "nodes": {
+            "files": "src/files.js"
+        }
+    },
+    "author": {
+        "name": "Anders Åslund"
+    },
+    "dependencies": {
+        "body-parser": "^1.20.0"
+    }
+}

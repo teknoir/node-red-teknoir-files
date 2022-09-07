@@ -1,0 +1,49 @@
+[
+  {
+    "id": "e0b20836c36e6c20",
+    "type": "tab",
+    "label": "Flow 1",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "0b3963805b7c50f1",
+    "type": "files",
+    "z": "e0b20836c36e6c20",
+    "name": "",
+    "topic": "",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "763752a384874b01"
+      ]
+    ]
+  },
+  {
+    "id": "763752a384874b01",
+    "type": "image viewer",
+    "z": "e0b20836c36e6c20",
+    "name": "",
+    "width": 160,
+    "data": "payload",
+    "dataType": "msg",
+    "active": true,
+    "x": 430,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3d5c46e4f86758ac",
+    "type": "comment",
+    "z": "e0b20836c36e6c20",
+    "name": "Click button on file upload and choose a couple of image files.",
+    "info": "",
+    "x": 300,
+    "y": 80,
+    "wires": []
+  }
+]
